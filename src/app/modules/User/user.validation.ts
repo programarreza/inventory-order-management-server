@@ -23,12 +23,8 @@ const createUserValidationSchema = z.object({
     contactNo: z.string({
       required_error: "Contact number is required",
     }),
-    role: z.string({
-      required_error: "Role is required",
-    }),
-    address: z.string({
-      required_error: "Address is required",
-    }),
+    role: z.string().optional(),
+    address: z.string().optional(),
   }),
 });
 
