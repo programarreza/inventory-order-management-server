@@ -17,7 +17,7 @@ const createProductIntoDB = async (payload: IProduct) => {
 };
 
 const getAllProductsFromDB = async () => {
-  const result = await Product.find();
+  const result = await Product.find().populate("categoryId");
 
   if (!result) {
     throw new AppError(StatusCodes.NOT_FOUND, "No product found!");

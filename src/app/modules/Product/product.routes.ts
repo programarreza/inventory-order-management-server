@@ -11,12 +11,12 @@ const productRoutes = Router();
 productRoutes.post(
   "/create",
   auth(UserRole.ADMIN, UserRole.MANAGER),
-  validateRequest(createProductValidationSchema),
   multerUpload.single("image"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = JSON.parse(req.body.data);
     next();
   },
+  validateRequest(createProductValidationSchema),
   productController.createProduct,
 );
 
