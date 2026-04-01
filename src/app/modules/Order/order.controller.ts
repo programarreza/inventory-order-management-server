@@ -15,8 +15,9 @@ const createOrder = catchAsync(async (req, res) => {
 });
 
 const updateOrderStatusByCustomer = catchAsync(async (req, res) => {
+  const { orderId } = req.body;
   const result = await orderService.updateOrderStatusByCustomerIntoDB(
-    req.body,
+    orderId,
     req.user,
   );
 

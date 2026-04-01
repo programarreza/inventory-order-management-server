@@ -3,6 +3,7 @@ import { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import AppError from "../../errors/AppError";
 import { Product } from "../Product/product.model";
+import { Restock } from "../Restock/restock.model";
 import { restockService } from "../Restock/restock.services";
 import User from "../User/user.model";
 import { IOrder, OrderStatus } from "./order.interface";
@@ -129,6 +130,22 @@ const updateOrderStatusByCustomerIntoDB = async (
       StatusCodes.BAD_REQUEST,
       "Delivered orders cannot be canceled!",
     );
+  }
+
+  // Handle Stock Restoration on Cancel
+  for (const item of order.items) {
+    const product = await Product.findById(item.productId);
+
+    // Restore stock
+    if (product) {
+      product.stock += item.quantity;
+      await product.save();
+
+      // Remove from restock queue if stock is now above minStock
+      if (product.stock >= product.minStock) {
+        await Restock.findOneAndDelete({ productId: product._id });
+      }
+    }
   }
 
   order.status = OrderStatus.CANCELLED;

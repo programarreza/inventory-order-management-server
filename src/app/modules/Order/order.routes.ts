@@ -13,13 +13,13 @@ orderRoutes.post(
   orderController.createOrder,
 );
 
-orderRoutes.post(
+orderRoutes.patch(
   "/cancel",
   auth(UserRole.USER),
   orderController.updateOrderStatusByCustomer,
 );
 
-orderRoutes.post(
+orderRoutes.patch(
   "/status/update",
   auth(UserRole.ADMIN, UserRole.MANAGER),
   orderController.updateOrderStatus,
