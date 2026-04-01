@@ -1,11 +1,12 @@
 import { model, Schema } from "mongoose";
+import { IProduct } from "./product.interface";
 
 export enum ProductStatus {
   ACTIVE = "Active",
   OUT_OF_STOCK = "Out of Stock",
 }
 
-const productSchema = new Schema(
+const productSchema = new Schema<IProduct>(
   {
     name: {
       type: String,
@@ -50,10 +51,13 @@ const productSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    image: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   },
 );
 
-export const Product = model("Product", productSchema);
+export const Product = model<IProduct>("Product", productSchema);

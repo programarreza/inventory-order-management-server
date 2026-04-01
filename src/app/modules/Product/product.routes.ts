@@ -1,4 +1,5 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
+import { multerUpload } from "../../config/multer.config";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import { UserRole } from "../Auth/auth.constant";
@@ -11,6 +12,11 @@ productRoutes.post(
   "/create",
   auth(UserRole.ADMIN, UserRole.MANAGER),
   validateRequest(createProductValidationSchema),
+  multerUpload.single("image"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
   productController.createProduct,
 );
 

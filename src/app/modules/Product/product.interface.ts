@@ -12,6 +12,7 @@ export interface IProduct {
   stock: number;
   minStock: number;
   status: ProductStatus;
+  image?: string;
   isActive?: boolean;
   createdBy?: Types.ObjectId;
 }
