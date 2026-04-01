@@ -171,8 +171,22 @@ const updateOrderStatusIntoDB = async (
   return order;
 };
 
+// Get All Orders
+const getAllOrdersFromDB = async () => {
+  const result = await Order.find()
+    .populate("items.productId", "name price")
+    .sort({ createdAt: -1 });
+
+  if (!result) {
+    throw new AppError(StatusCodes.NOT_FOUND, "No orders found!");
+  }
+
+  return result;
+};
+
 export const orderService = {
   createOrderIntoDB,
   updateOrderStatusByCustomerIntoDB,
   updateOrderStatusIntoDB,
+  getAllOrdersFromDB,
 };

@@ -25,4 +25,10 @@ orderRoutes.patch(
   orderController.updateOrderStatus,
 );
 
+orderRoutes.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.MANAGER),
+  orderController.getAllOrders,
+);
+
 export default orderRoutes;
