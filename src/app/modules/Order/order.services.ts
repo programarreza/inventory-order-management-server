@@ -1,9 +1,11 @@
 import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import AppError from "../../errors/AppError";
 import { Product } from "../Product/product.model";
 import { restockService } from "../Restock/restock.services";
-import { IOrder } from "./order.interface";
+import User from "../User/user.model";
+import { IOrder, OrderStatus } from "./order.interface";
 import { Order } from "./order.model";
 
 const createOrderIntoDB = async (payload: IOrder) => {
@@ -59,6 +61,12 @@ const createOrderIntoDB = async (payload: IOrder) => {
       product.stock -= item.quantity;
       await product.save({ session });
 
+      // Status Change Logic: Update product status based on stock
+      if (product.stock === 0) {
+        product.isActive = false;
+        await product.save({ session });
+      }
+
       itemsWithPrice.push({
         productId: product._id,
         quantity: item.quantity,
@@ -91,6 +99,63 @@ const createOrderIntoDB = async (payload: IOrder) => {
   }
 };
 
+// Customer Status Update Only Canceled
+const updateOrderStatusByCustomerIntoDB = async (
+  orderId: string,
+  user: JwtPayload,
+) => {
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Order not found!");
+  }
+
+  // Customer can only cancel their own orders
+  const customer = await User.findOne({ email: user.email });
+  if (order.customerName !== customer?.name) {
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      "You can only update your own orders!",
+    );
+  }
+
+  // Only allow canceling orders
+  if (order.status === OrderStatus.CANCELLED) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Order is already canceled!");
+  }
+
+  if (order.status === OrderStatus.DELIVERED) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Delivered orders cannot be canceled!",
+    );
+  }
+
+  order.status = OrderStatus.CANCELLED;
+  await order.save();
+
+  return order;
+};
+
+// Admin/Manager Status Update All Statuses
+const updateOrderStatusIntoDB = async (
+  orderId: string,
+  status: OrderStatus,
+) => {
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Order not found!");
+  }
+
+  order.status = status;
+  await order.save();
+
+  return order;
+};
+
 export const orderService = {
   createOrderIntoDB,
+  updateOrderStatusByCustomerIntoDB,
+  updateOrderStatusIntoDB,
 };

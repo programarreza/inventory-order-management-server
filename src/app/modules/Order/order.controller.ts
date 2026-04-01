@@ -14,6 +14,35 @@ const createOrder = catchAsync(async (req, res) => {
   });
 });
 
+const updateOrderStatusByCustomer = catchAsync(async (req, res) => {
+  const result = await orderService.updateOrderStatusByCustomerIntoDB(
+    req.body,
+    req.user,
+  );
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order cancel successfully!",
+    data: result,
+  });
+});
+
+const updateOrderStatus = catchAsync(async (req, res) => {
+  const { orderId, status } = req.body;
+
+  const result = await orderService.updateOrderStatusIntoDB(orderId, status);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order status update successfully!",
+    data: result,
+  });
+});
+
 export const orderController = {
   createOrder,
+  updateOrderStatusByCustomer,
+  updateOrderStatus,
 };
