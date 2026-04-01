@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import AppError from "../../errors/AppError";
 import { Product } from "../Product/product.model";
+import { restockService } from "../Restock/restock.services";
 import { IOrder } from "./order.interface";
 import { Order } from "./order.model";
 
@@ -44,6 +45,14 @@ const createOrderIntoDB = async (payload: IOrder) => {
           StatusCodes.BAD_REQUEST,
           `Only ${product.stock} items available`,
         );
+      }
+
+      // Check if restock needed BEFORE stock deduction
+      if (product.stock - item.quantity < product.minStock) {
+        await restockService.handleLowStock(product._id.toString(), {
+          session,
+          orderQuantity: item.quantity,
+        });
       }
 
       // Deduct Stock
