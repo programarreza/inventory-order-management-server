@@ -26,7 +26,18 @@ const getAllProductsFromDB = async () => {
   return result;
 };
 
+const getSingleProductFromDB = async (id: string) => {
+  const result = await Product.findById(id).populate("categoryId");
+
+  if (!result) {
+    throw new AppError(StatusCodes.NOT_FOUND, "No product found!");
+  }
+  
+  return result;
+};
+
 export const productService = {
   createProductIntoDB,
   getAllProductsFromDB,
+  getSingleProductFromDB,
 };
