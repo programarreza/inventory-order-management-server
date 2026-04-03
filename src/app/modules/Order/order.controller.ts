@@ -53,9 +53,21 @@ const getAllOrders = catchAsync(async (req, res) => {
   });
 });
 
+const getUserOrders = catchAsync(async (req, res) => {
+  const result = await orderService.getUserOrdersFromDB(req.user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Orders retrieved successfully!",
+    data: result,
+  });
+}); 
+
 export const orderController = {
   createOrder,
   updateOrderStatusByCustomer,
   updateOrderStatus,
   getAllOrders,
+  getUserOrders,
 };

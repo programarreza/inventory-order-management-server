@@ -31,4 +31,10 @@ orderRoutes.get(
   orderController.getAllOrders,
 );
 
+orderRoutes.get(
+  "/user-orders",
+  auth(UserRole.USER),
+  orderController.getUserOrders,
+);
+
 export default orderRoutes;

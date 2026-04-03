@@ -184,9 +184,28 @@ const getAllOrdersFromDB = async () => {
   return result;
 };
 
+const getUserOrdersFromDB = async (user: JwtPayload) => {
+  const customer = await User.findOne({ email: user.email });
+
+  if (!customer) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Customer not found!");
+  }
+
+  const result = await Order.find({customerName: customer?.name})
+    .populate("items.productId", "name price")
+    .sort({ createdAt: -1 });
+
+  if (!result) {
+    throw new AppError(StatusCodes.NOT_FOUND, "No orders found!");
+  }
+
+  return result;
+};
+
 export const orderService = {
   createOrderIntoDB,
   updateOrderStatusByCustomerIntoDB,
   updateOrderStatusIntoDB,
   getAllOrdersFromDB,
+  getUserOrdersFromDB,
 };
