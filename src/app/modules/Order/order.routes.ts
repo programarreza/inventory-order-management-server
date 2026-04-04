@@ -21,7 +21,7 @@ orderRoutes.patch(
 
 orderRoutes.patch(
   "/status/update",
-  auth(UserRole.ADMIN, UserRole.MANAGER),
+  auth(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER),
   orderController.updateOrderStatus,
 );
 
