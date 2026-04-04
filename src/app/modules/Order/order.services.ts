@@ -181,8 +181,7 @@ const updateOrderStatusIntoDB = async (
   await order.save();
 
   await activityLogService.createLog(
-    `Order #${order._id} status updated to "${status}"`,
-    "System",
+    `Order #${order._id} status updated to "${status}"`
   );
 
   return order;

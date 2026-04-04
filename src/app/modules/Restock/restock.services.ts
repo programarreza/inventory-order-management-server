@@ -11,13 +11,40 @@ interface IRestockProduct {
 }
 
 const getAllRestocksFromDB = async () => {
+  // Find all products that should be in the restock queue
+  const lowStockProducts = await Product.find({
+    $expr: { $lt: ["$stock", "$minStock"] },
+  });
+
+  // Upsert all low stock products into the Restock collection
+  for (const product of lowStockProducts) {
+    const priority = calculatePriority(product.stock, product.minStock);
+    await Restock.findOneAndUpdate(
+      { productId: product._id },
+      {
+        productId: product._id,
+        currentStock: product.stock,
+        minStock: product.minStock,
+        priority,
+        isResolved: false,
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true,
+      },
+    );
+  }
+
+  // Remove items that no longer need restock
+  const productIdsBelowMin = lowStockProducts.map(p => p._id);
+  await Restock.deleteMany({
+    productId: { $nin: productIdsBelowMin }
+  });
+
   const result = await Restock.find()
     .populate("productId")
     .sort({ priority: 1, createdAt: -1 });
-
-  if (!result) {
-    throw new AppError(StatusCodes.NOT_FOUND, "No restock found!");
-  }
 
   return result;
 };

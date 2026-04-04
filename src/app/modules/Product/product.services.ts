@@ -16,8 +16,7 @@ const createProductIntoDB = async (payload: IProduct) => {
   const result = await Product.create(payload);
   
   await activityLogService.createLog(
-    `Product "${payload.name}" created`,
-    "System"
+    `Product "${payload.name}" created`
   );
 
   return result;
