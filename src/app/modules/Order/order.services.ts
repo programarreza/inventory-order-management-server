@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import AppError from "../../errors/AppError";
+import { activityLogService } from "../ActivityLog/activityLog.service";
 import { Product } from "../Product/product.model";
 import { Restock } from "../Restock/restock.model";
 import { restockService } from "../Restock/restock.services";
@@ -89,6 +90,12 @@ const createOrderIntoDB = async (payload: IOrder) => {
       { session },
     );
 
+    const orderId = result[0]._id;
+    await activityLogService.createLog(
+      `Order #${orderId} created for ${payload.customerName}`,
+      payload.customerName,
+    );
+
     await session.commitTransaction();
     session.endSession();
 
@@ -151,6 +158,11 @@ const updateOrderStatusByCustomerIntoDB = async (
   order.status = OrderStatus.CANCELLED;
   await order.save();
 
+  await activityLogService.createLog(
+    `Order #${order._id} cancelled by ${order.customerName}`,
+    order.customerName,
+  );
+
   return order;
 };
 
@@ -167,6 +179,11 @@ const updateOrderStatusIntoDB = async (
 
   order.status = status;
   await order.save();
+
+  await activityLogService.createLog(
+    `Order #${order._id} status updated to "${status}"`,
+    "System",
+  );
 
   return order;
 };

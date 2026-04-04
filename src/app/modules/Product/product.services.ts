@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../errors/AppError";
+import { activityLogService } from "../ActivityLog/activityLog.service";
 import { IProduct } from "./product.interface";
 import { Product } from "./product.model";
 
@@ -13,6 +14,12 @@ const createProductIntoDB = async (payload: IProduct) => {
   }
 
   const result = await Product.create(payload);
+  
+  await activityLogService.createLog(
+    `Product "${payload.name}" created`,
+    "System"
+  );
+
   return result;
 };
 

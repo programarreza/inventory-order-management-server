@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../errors/AppError";
 import { calculatePriority } from "../../utils/utils";
+import { activityLogService } from "../ActivityLog/activityLog.service";
 import { Product } from "../Product/product.model";
 import { Restock } from "./restock.model";
 
@@ -56,6 +57,10 @@ const handleLowStock = async (
     },
   );
 
+  await activityLogService.createLog(
+    `Product "${product.name}" added to Restock Queue`,
+  );
+
   return restock;
 };
 
@@ -83,6 +88,10 @@ const restockProductIntoDB = async (payload: IRestockProduct) => {
   } else {
     await Restock.findOneAndDelete({ productId: product._id });
   }
+
+  await activityLogService.createLog(
+    `Product "${product.name}" restocked (Quantity: ${quantity})`,
+  );
 
   return product;
 };

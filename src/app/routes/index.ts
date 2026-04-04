@@ -6,6 +6,7 @@ import productRoutes from "../modules/Product/product.routes";
 import restockRoutes from "../modules/Restock/restock.routes";
 import userRoutes from "../modules/User/user.routes";
 import uploadRoutes from "../modules/upload/upload.routes";
+import dashboardRoutes from "../modules/Dashboard/dashboard.routes";
 
 const router = Router();
 
@@ -37,6 +38,10 @@ const moduleRoutes = [
   {
     path: "/uploads",
     route: uploadRoutes,
+  },
+  {
+    path: "/dashboard",
+    route: dashboardRoutes,
   },
 ];
 
